@@ -22,7 +22,7 @@ module flappy_bird
 	reg e_disp ;
 	wire d_disp;
 	wire [gs:0] row_d_o;
-	
+
 	//DUT
 	display
 		#(gs)
