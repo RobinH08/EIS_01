@@ -57,7 +57,7 @@ module display
 				row_val <= row_val << 1;
 			end
 			
-			if(row_d == 8) begin
+			if(row_d == 7) begin
 				d_disp <= 1;
 			end
 			row_d <= row_d + 1;
