@@ -1,7 +1,11 @@
 `default_nettype none
+`include "get_input.v"
+`include "action.v"
+`include "display.v"
 
 module tt_um_flappy_bird 
-#( ) (
+(
+
     input  wire [7:0] ui_in,    // Dedicated inputs - connected to the input switches
     output wire [7:0] uo_out,   // Dedicated outputs - connected to the 7 segment display
     input  wire [7:0] uio_in,   // IOs: Bidirectional Input path
@@ -12,65 +16,83 @@ module tt_um_flappy_bird
     input  wire       rst_n     // reset_n - low to reset
 );
 
-    reg reset = ! rst_n;
+
 
     // use bidirectionals as outputs
     assign uio_oe = 8'b11111111;
 	
 	parameter gs = 8;
 	parameter cr = 2;
-	reg [gs*gs-1:0] my_disp;
-	reg e_disp ;	//enable display
-	wire d_disp;	//disable input
-	wire [gs:0] row_d_o;
 	
-	reg e_inp; // enable input
- 	
- 	//reg right_i;
- 	//reg left_i;
+	
+	//reg
+	reg e_inp = 1'b0;
+	reg e_act = 1'b0;
+	reg e_disp = 1'b0;
+	reg tReset;			
+	//wires
+	wire up;
+ 	wire down;
+ 	wire d_inp;
+ 	wire [gs*gs-1:0] matrix;
+ 	wire d_act;
+	wire [gs-1:0] col_val;
+	wire [gs-1:0] row_val;
 
- 	wire right_o;
- 	wire left_o;
- 	
- 	wire rst_o;	
- 	wire d_inp_o; // disable input
-
-	//DUT
-	display
-		#(gs)
-		display_dut (
-			.clk_i ( clk ) ,
-			.matrix_i(my_disp) ,
-			.e_disp(e_disp) ,
-			.col_val_o(uo_out) ,
-			.row_val_o(uio_out) ,
-			.d_disp_o(d_disp),
-
-			.row_d_o(row_d_o)
-		);
+ 	wire d_disp;
+	
+	//assign
+	assign uo_out = col_val;
+	assign uio_out = row_val;
 		
+
+	 
+	
+	//DUT - Defenitions
 	get_input
 		#(cr)
 		get_input_dut (
 			.clk_i ( clk ) ,
-			.rst_i ( reset ) ,
+			//.rst_i ( ! rst_n ) ,
 			.e_inp (e_inp) ,
-			
-			.right_i(ui_in[0]),
-			.left_i(ui_in[1]),
-			.right_o(right_o) ,
-			.left_o(left_o) ,
-			.rst_o(rst_o) ,
-			.d_inp_o(d_inp_o) 
+			.right_i(ui_in[0]), //right == up
+			.left_i(ui_in[1]),  //left == down		
+			.right_o(up) ,
+			.left_o(down) ,
+			.d_inp_o(d_inp) 
+		);
+	
+	action
+		#(gs)
+		action_dut (
+			.clk_i ( clk) ,
+			.up_i ( up ),
+			.down_i ( down ),
+			.reset_i ( rst_n ),
+			.e_act_i (e_act ),
+			.matrix_o (matrix),
+			.d_act_o(d_act)
 		);
 		
+	display
+		#(gs)
+		display_dut (
+			.clk_i ( clk ) ,
+			.matrix_i(matrix) ,
+			.e_disp(e_disp) ,	
+			.col_val_o(col_val) ,
+			.row_val_o(row_val) ,
+			.d_disp_o(d_disp)
+		);
 	
+	
+	
+	// States for State Machine
     reg [1:0]State;
-	localparam Start = 2'b00;
-	localparam Idle = 2'b01;
-	localparam Work = 2'b11;
-	localparam Done = 2'b10;
-	reg tReset;	
+	localparam Input_s = 2'b01;
+	localparam Action_s = 2'b11;
+	localparam Display_s = 2'b10;
+
     // external clock is 10MHz, so need 24 bit counter
     
     
@@ -79,51 +101,40 @@ module tt_um_flappy_bird
     // otherwise use the hard coded MAX_COUNT
     
 	
-    always @(posedge clk) begin
+    always @(negedge clk) begin
 
-
-	tReset <= reset;
-	if(tReset) begin
-		e_inp <= 1'b1;
-		State <= Start;
-	end else begin
-		case(State)
-			Start: begin
-				if(d_inp_o == 1'b1) begin
-					e_inp <= 1'b0;
-					
-					my_disp <= 64'b0;
-					my_disp[0] <= 1'b1;
-					my_disp[9] <= 1'b1; 
-					my_disp[18] <= 1'b1; 
-					my_disp[27] <= 1'b1; 
-					my_disp[36] <= 1'b1; 
-					my_disp[45] <= 1'b1; 
-					my_disp[54] <= 1'b1; 
-					my_disp[63] <= 1'b1;
-					e_disp <= 1'b1;	
-					State <= Idle;
-				end	
-
-			end
-			Idle: begin
-			    if (d_disp == 1'b1)  begin
-					e_disp <= 1'b0;
-					e_inp <= 1'b1;
-					State <= Start;
+	if(ena) begin
+		tReset <= rst_n;
+		if(tReset) begin
+			e_inp <= 1'b1;
+			State <= Input_s;
+		end else begin
+			case(State)
+				Input_s: begin
+					if (d_inp == 1'b1)  begin
+						e_inp<= 1'b0;
+						e_act <= 1'b1;
+						State <= Action_s;
+					end
 				end
-
-			end
-			/*
-			Work: begin
-				State <= Done;
-			end
-			Done: begin
-				State <= Idle;
-			end
-			*/
-			default:;
-		endcase
+				Action_s: begin
+					if (d_act == 1'b1)  begin
+						e_act <= 1'b0;
+						e_disp <= 1'b1;
+						State <= Display_s;
+					end
+				end
+				Display_s: begin
+					if (d_disp == 1'b1)  begin
+						e_disp <= 1'b0;
+						e_inp <= 1'b1;
+						State <= Input_s;
+					end
+				end
+				
+				default:;
+			endcase
+		end
 	end
  
 		

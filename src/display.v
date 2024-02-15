@@ -20,8 +20,8 @@ module display
 
 	output [gs-1:0] col_val_o,
 	output [gs-1:0] row_val_o,
-	output d_disp_o,
-	output [gs:0] row_d_o 
+	output d_disp_o
+	//output [gs:0] row_d_o 
  	
 );
 
@@ -37,14 +37,13 @@ module display
 	assign col_val_o = col_val;
 	assign row_val_o = row_val;
 	assign d_disp_o = d_disp;
-	assign row_d_o = row_d;
 
 	
 	
 	always @ (posedge clk_i) begin
 		if (e_disp) begin
 			d_disp <= 0;	
-			$display(row_d);
+			//$display(row_d);
 
 			for(integer i =0; i < gs; i= i+1) begin
 				col_val[i] <= matrix_i[gs*row_d + i];

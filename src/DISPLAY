@@ -1,0 +1,121 @@
+#! /foss/tools/iverilog/77d7f0b/bin/vvp
+:ivl_version "13.0 (devel)" "(s20221226-331-g77d7f0b8-dirty)";
+:ivl_delay_selection "TYPICAL";
+:vpi_time_precision + 0;
+:vpi_module "/foss/tools/iverilog/77d7f0b/lib/ivl/system.vpi";
+:vpi_module "/foss/tools/iverilog/77d7f0b/lib/ivl/vhdl_sys.vpi";
+:vpi_module "/foss/tools/iverilog/77d7f0b/lib/ivl/vhdl_textio.vpi";
+:vpi_module "/foss/tools/iverilog/77d7f0b/lib/ivl/v2005_math.vpi";
+:vpi_module "/foss/tools/iverilog/77d7f0b/lib/ivl/va_math.vpi";
+S_0x564ff59a09e0 .scope module, "display" "display" 2 11;
+ .timescale 0 0;
+    .port_info 0 /INPUT 1 "clk_i";
+    .port_info 1 /INPUT 64 "matrix_i";
+    .port_info 2 /INPUT 1 "e_disp";
+    .port_info 3 /OUTPUT 8 "col_val_o";
+    .port_info 4 /OUTPUT 8 "row_val_o";
+    .port_info 5 /OUTPUT 1 "d_disp_o";
+    .port_info 6 /OUTPUT 9 "row_d_o";
+P_0x564ff59a0b70 .param/l "gs" 0 2 13, +C4<00000000000000000000000000001000>;
+L_0x564ff59c8b80 .functor BUFZ 8, v0x564ff59c8210_0, C4<00000000>, C4<00000000>, C4<00000000>;
+L_0x564ff59c8c10 .functor BUFZ 8, v0x564ff59c88e0_0, C4<00000000>, C4<00000000>, C4<00000000>;
+L_0x564ff59c8cb0 .functor BUFZ 1, v0x564ff59c83b0_0, C4<0>, C4<0>, C4<0>;
+L_0x564ff59c8d80 .functor BUFZ 9, v0x564ff59c8720_0, C4<000000000>, C4<000000000>, C4<000000000>;
+o0x7f7f9465c048 .functor BUFZ 1, C4<z>; HiZ drive
+v0x564ff59c8130_0 .net "clk_i", 0 0, o0x7f7f9465c048;  0 drivers
+v0x564ff59c8210_0 .var "col_val", 7 0;
+v0x564ff59c82f0_0 .net "col_val_o", 7 0, L_0x564ff59c8b80;  1 drivers
+v0x564ff59c83b0_0 .var "d_disp", 0 0;
+v0x564ff59c8470_0 .net "d_disp_o", 0 0, L_0x564ff59c8cb0;  1 drivers
+o0x7f7f9465c138 .functor BUFZ 1, C4<z>; HiZ drive
+v0x564ff59c8580_0 .net "e_disp", 0 0, o0x7f7f9465c138;  0 drivers
+o0x7f7f9465c168 .functor BUFZ 64, C4<zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz>; HiZ drive
+v0x564ff59c8640_0 .net "matrix_i", 63 0, o0x7f7f9465c168;  0 drivers
+v0x564ff59c8720_0 .var "row_d", 8 0;
+v0x564ff59c8800_0 .net "row_d_o", 8 0, L_0x564ff59c8d80;  1 drivers
+v0x564ff59c88e0_0 .var "row_val", 7 0;
+v0x564ff59c89c0_0 .net "row_val_o", 7 0, L_0x564ff59c8c10;  1 drivers
+E_0x564ff599ae70 .event posedge, v0x564ff59c8130_0;
+S_0x564ff59a0d00 .scope begin, "$ivl_for_loop0" "$ivl_for_loop0" 2 49, 2 49 0, S_0x564ff59a09e0;
+ .timescale 0 0;
+v0x564ff59a0ee0_0 .var/i "i", 31 0;
+    .scope S_0x564ff59a09e0;
+T_0 ;
+    %wait E_0x564ff599ae70;
+    %load/vec4 v0x564ff59c8580_0;
+    %flag_set/vec4 8;
+    %jmp/0xz  T_0.0, 8;
+    %pushi/vec4 0, 0, 1;
+    %assign/vec4 v0x564ff59c83b0_0, 0;
+    %vpi_call 2 47 "$display", v0x564ff59c8720_0 {0 0 0};
+    %fork t_1, S_0x564ff59a0d00;
+    %jmp t_0;
+    .scope S_0x564ff59a0d00;
+t_1 ;
+    %pushi/vec4 0, 0, 32;
+    %store/vec4 v0x564ff59a0ee0_0, 0, 32;
+T_0.2 ; Top of for-loop 
+    %load/vec4 v0x564ff59a0ee0_0;
+    %cmpi/s 8, 0, 32;
+    %jmp/0xz T_0.3, 5;
+    %load/vec4 v0x564ff59c8640_0;
+    %load/vec4 v0x564ff59c8720_0;
+    %pad/u 32;
+    %muli 8, 0, 32;
+    %load/vec4 v0x564ff59a0ee0_0;
+    %add;
+    %part/u 1;
+    %ix/load 5, 0, 0;
+    %ix/getv/s 4, v0x564ff59a0ee0_0;
+    %assign/vec4/off/d v0x564ff59c8210_0, 4, 5;
+T_0.4 ; for-loop step statement
+    %load/vec4 v0x564ff59a0ee0_0;
+    %addi 1, 0, 32;
+    %store/vec4 v0x564ff59a0ee0_0, 0, 32;
+    %jmp T_0.2;
+T_0.3 ; for-loop exit label
+    %end;
+    .scope S_0x564ff59a09e0;
+t_0 %join;
+    %load/vec4 v0x564ff59c8720_0;
+    %pad/u 32;
+    %cmpi/e 0, 0, 32;
+    %jmp/0xz  T_0.5, 4;
+    %pushi/vec4 1, 0, 8;
+    %assign/vec4 v0x564ff59c88e0_0, 0;
+    %jmp T_0.6;
+T_0.5 ;
+    %load/vec4 v0x564ff59c88e0_0;
+    %ix/load 4, 1, 0;
+    %flag_set/imm 4, 0;
+    %shiftl 4;
+    %assign/vec4 v0x564ff59c88e0_0, 0;
+T_0.6 ;
+    %load/vec4 v0x564ff59c8720_0;
+    %pad/u 32;
+    %cmpi/e 7, 0, 32;
+    %jmp/0xz  T_0.7, 4;
+    %pushi/vec4 1, 0, 1;
+    %assign/vec4 v0x564ff59c83b0_0, 0;
+T_0.7 ;
+    %load/vec4 v0x564ff59c8720_0;
+    %addi 1, 0, 9;
+    %assign/vec4 v0x564ff59c8720_0, 0;
+    %jmp T_0.1;
+T_0.0 ;
+    %pushi/vec4 0, 0, 8;
+    %assign/vec4 v0x564ff59c8210_0, 0;
+    %pushi/vec4 0, 0, 8;
+    %assign/vec4 v0x564ff59c88e0_0, 0;
+    %pushi/vec4 0, 0, 1;
+    %assign/vec4 v0x564ff59c83b0_0, 0;
+    %pushi/vec4 0, 0, 9;
+    %assign/vec4 v0x564ff59c8720_0, 0;
+T_0.1 ;
+    %jmp T_0;
+    .thread T_0;
+# The file index is used to find the file name in the following table.
+:file_names 3;
+    "N/A";
+    "<interactive>";
+    "display.v";
